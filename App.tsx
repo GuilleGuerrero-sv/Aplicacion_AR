@@ -8,7 +8,8 @@ import {
   SafeAreaView,
 } from 'react-native';
 
-const API_URL = 'https://681d1feff74de1d219aeddd5.mockapi.io/sensores/1';
+const API_BASE = 'https://681d1feff74de1d219aeddd5.mockapi.io/sensores';
+const TOTAL_SENSORES = 80;
 
 interface Sensor {
   id: string;
@@ -24,18 +25,19 @@ export default function App() {
   const [ultimaActualizacion, setUltimaActualizacion] = useState('');
 
   const obtenerDatos = async () => {
-    setCargando(true);
-    try {
-      const respuesta = await fetch(API_URL);
-      const datos = await respuesta.json();
-      setSensor(datos);
-      setUltimaActualizacion(new Date().toLocaleTimeString());
-    } catch (error) {
-      console.error('Error al obtener datos:', error);
-    } finally {
-      setCargando(false);
-    }
-  };
+  setCargando(true);
+  try {
+    const idAleatorio = Math.floor(Math.random() * TOTAL_SENSORES) + 1;
+    const respuesta = await fetch(`${API_BASE}/${idAleatorio}`);
+    const datos = await respuesta.json();
+    setSensor(datos);
+    setUltimaActualizacion(new Date().toLocaleTimeString());
+  } catch (error) {
+    console.error('Error al obtener datos:', error);
+  } finally {
+    setCargando(false);
+  }
+};
 
   // Polling cada 5 segundos
   useEffect(() => {
