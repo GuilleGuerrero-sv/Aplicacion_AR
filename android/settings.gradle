@@ -1,4 +1,10 @@
 rootProject.name = 'SensorARApp'
 apply from: file("../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesSettingsGradle(settings)
 include ':app'
+include ':react_viro', ':viro_renderer', ':arcore_client', ':gvr_common'
+project(':react_viro').projectDir = new File(rootProject.projectDir, '../node_modules/@reactvision/react-viro/android/react_viro')
+project(':viro_renderer').projectDir = new File(rootProject.projectDir, '../node_modules/@reactvision/react-viro/android/viro_renderer')
+project(':arcore_client').projectDir = new File(rootProject.projectDir, '../node_modules/@reactvision/react-viro/android/arcore_client')
+project(':gvr_common').projectDir = new File(rootProject.projectDir, '../node_modules/@reactvision/react-viro/android/gvr_common')
+
 includeBuild('../node_modules/@react-native/gradle-plugin')

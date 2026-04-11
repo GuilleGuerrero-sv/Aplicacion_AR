@@ -1,0 +1,58 @@
+# GUÍA DE SOLUCIÓN DE ERRORES - REACT NATIVE (ANDROID)
+
+Este documento resume los problemas encontrados durante la configuración del proyecto Aplicacion_AR y sus soluciones paso a paso.
+
+---
+
+### 1. INSTALACIÓN DE DEPENDENCIAS
+**Problema:** El proyecto no tiene los módulos necesarios para correr.
+**Solución:** Ejecutar en la raíz del proyecto:
+```powershell
+npm install
+```
+
+---
+
+### 2. ERROR: "adb" no se reconoce como un comando
+**Problema:** No se puede comunicar con el emulador o teléfono porque el sistema no encuentra las herramientas de Android.
+**Solución Temporal (Ruta completa):**
+Usa la ruta directa al ejecutable (ajustando a tu usuario):
+`& "C:\Users\Ander\AppData\Local\Android\Sdk\platform-tools\adb.exe" devices`
+
+**Solución Definitiva (PATH):**
+Agregar `C:\Users\Ander\AppData\Local\Android\Sdk\platform-tools` a las Variables de Entorno del Sistema (Path) y reiniciar la terminal/VS Code.
+
+---
+
+### 3. ERROR: "BUILD FAILED" (Falta SDK de Android)
+**Problema:** Gradle no sabe dónde está instalado el Android SDK.
+**Solución:** Crear el archivo `android/local.properties` con el siguiente contenido:
+`sdk.dir=C:/Users/Ander/AppData/Local/Android/Sdk`
+
+---
+
+### 4. USO DE EMULADORES EXTERNOS (Ej: MEmu Play)
+**Problema:** React Native no detecta el emulador automáticamente o aparece como "offline".
+**Solución:**
+1. Abrir el emulador.
+2. Forzar la conexión manualmente:
+   `adb connect 127.0.0.1:21503` (o puerto 5555).
+3. Verificar con: `adb devices`.
+
+---
+
+### 5. ERROR: "Failed to connect to development server"
+**Problema:** La app abre en el móvil pero se queda con pantalla roja o no carga el código del PC.
+**Solución:** Mapear el puerto del PC al dispositivo:
+`adb reverse tcp:8081 tcp:8081`
+
+---
+
+### 6. CÓMO CORRER LA APP CORRECTAMENTE
+1. **Terminal 1:** Iniciar servidor Metro:
+   `npm start`
+2. **Terminal 2:** Ejecutar la app (con el dispositivo conectado):
+   `npm run android`
+
+---
+Guía generada para el proyecto Aplicacion_AR.
