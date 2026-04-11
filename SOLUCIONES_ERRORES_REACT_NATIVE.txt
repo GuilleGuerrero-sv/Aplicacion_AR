@@ -55,4 +55,40 @@ Agregar `C:\Users\Ander\AppData\Local\Android\Sdk\platform-tools` a las Variable
    `npm run android`
 
 ---
+
+### 7. CORRER EN CELULAR FÍSICO (USB)
+1. **Activar Opciones de Desarrollador:** Ir a Ajustes > Acerca del teléfono > pulsar 7 veces en "Número de compilación".
+2. **Activar Depuración USB:** Entrar en Opciones para desarrolladores y activar "Depuración USB".
+3. **Verificar conexión:** Conectar el cable y ejecutar:
+   `& "C:\Users\Ander\AppData\Local\Android\Sdk\platform-tools\adb.exe" devices`
+   *(Acepta el permiso que aparecerá en la pantalla del teléfono).*
+4. **Configurar el puerto:**
+   `& "C:\Users\Ander\AppData\Local\Android\Sdk\platform-tools\adb.exe" reverse tcp:8081 tcp:8081`
+
+---
+
+### 8. ABRIR EMULADOR DESDE LA TERMINAL (Sin Android Studio)
+Para no abrir Android Studio cada vez, usa estos comandos:
+1. **Listar emuladores disponibles:**
+   `& "C:\Users\Ander\AppData\Local\Android\Sdk\emulator\emulator.exe" -list-avds`
+2. **Lanzar un emulador:**
+   `& "C:\Users\Ander\AppData\Local\Android\Sdk\emulator\emulator.exe" -avd Small_Phone`
+   *(En tu caso, el emulador detectado fue "Small_Phone")*
+
+---
+
+### 9. INICIALIZAR EL SERVIDOR ADB
+Si el dispositivo no aparece o hay errores de conexión, reinicia el servidor de Android:
+1. **Matar servidor actual:**
+   `& "C:\Users\Ander\AppData\Local\Android\Sdk\platform-tools\adb.exe" kill-server`
+2. **Iniciar servidor:**
+   `& "C:\Users\Ander\AppData\Local\Android\Sdk\platform-tools\adb.exe" start-server`
+3. **Verificar que se inició:**
+   `& "C:\Users\Ander\AppData\Local\Android\Sdk\platform-tools\adb.exe" devices`
+
+---
 Guía generada para el proyecto Aplicacion_AR.
+
+
+
+$env:Path += ";C:\Users\Ander\AppData\Local\Android\Sdk\platform-tools"

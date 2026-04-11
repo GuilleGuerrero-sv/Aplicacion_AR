@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import {ViroARSceneNavigator} from '@reactvision/react-viro';
 import ARScene from './ARScene';
+import LiteAR from './LiteAR';
 
 const API_BASE = 'https://681d1feff74de1d219aeddd5.mockapi.io/sensores';
 const TOTAL_SENSORES = 80;
@@ -29,9 +30,10 @@ export default function App() {
   const [cargando, setCargando] = useState(false);
   const [ultimaActualizacion, setUltimaActualizacion] = useState('');
   const [mostrarAR, setMostrarAR] = useState(false);
+  const [mostrarLiteAR, setMostrarLiteAR] = useState(false);
   const [permisoCamara, setPermisoCamara] = useState(false);
 
-  const solicitarPermisoCamara = async () => {
+  const solicitarPermisoCamara = async (tipo: 'pro' | 'lite') => {
     if (Platform.OS === 'android') {
       try {
         const concedido = await PermissionsAndroid.request(
@@ -46,7 +48,8 @@ export default function App() {
         );
         if (concedido === PermissionsAndroid.RESULTS.GRANTED) {
           setPermisoCamara(true);
-          setMostrarAR(true);
+          if (tipo === 'pro') setMostrarAR(true);
+          else setMostrarLiteAR(true);
         }
       } catch (err) {
         console.warn(err);
@@ -94,6 +97,15 @@ export default function App() {
     );
   }
 
+  if (mostrarLiteAR && permisoCamara) {
+    return (
+      <LiteAR 
+        sensor={sensor} 
+        onClose={() => setMostrarLiteAR(false)} 
+      />
+    );
+  }
+
   return (
     <SafeAreaView style={styles.contenedor}>
       <StatusBar barStyle="light-content" />
@@ -134,9 +146,18 @@ export default function App() {
       <View style={styles.areaBotones}>
         <TouchableOpacity 
           style={[styles.boton, styles.botonAR]} 
-          onPress={solicitarPermisoCamara}
+          onPress={() => solicitarPermisoCamara('pro')}
         >
-          <Text style={styles.botonTexto}>Ver en Realidad Aumentada</Text>
+          <View style={{flexDirection: 'row', alignItems: 'center'}}>
+            <Text style={styles.botonTexto}>Ver en AR Pro (ARCore)</Text>
+          </View>
+        </TouchableOpacity>
+
+        <TouchableOpacity 
+          style={[styles.boton, styles.botonLite]} 
+          onPress={() => solicitarPermisoCamara('lite')}
+        >
+          <Text style={styles.botonTexto}>Ver en AR Lite (Sin ARCore)</Text>
         </TouchableOpacity>
 
         <TouchableOpacity 
@@ -146,7 +167,7 @@ export default function App() {
           {cargando ? (
             <ActivityIndicator color="#fff" />
           ) : (
-            <Text style={styles.botonTextoSecundario}>Actualizar</Text>
+            <Text style={styles.botonTextoSecundario}>Actualizar Datos</Text>
           )}
         </TouchableOpacity>
       </View>
@@ -219,6 +240,11 @@ const styles = StyleSheet.create({
   },
   botonAR: {
     backgroundColor: '#2196F3',
+  },
+  botonLite: {
+    backgroundColor: '#00BCD4',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.2)'
   },
   botonSecundario: {
     paddingVertical: 12,
