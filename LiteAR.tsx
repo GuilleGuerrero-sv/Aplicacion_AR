@@ -1,6 +1,12 @@
 import React, { useEffect } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
+import Animated, { 
+  useSharedValue,
+  useAnimatedStyle, 
+  interpolate,
+} from 'react-native-reanimated';
 import { Camera, useCameraDevice, useCameraPermission } from 'react-native-vision-camera';
+import { accelerometer, SensorTypes, setUpdateIntervalForType } from 'react-native-sensors';
 
 interface LiteARProps {
   sensor: any;
@@ -11,11 +17,79 @@ const LiteAR: React.FC<LiteARProps> = ({ sensor, onClose }) => {
   const device = useCameraDevice('back');
   const { hasPermission, requestPermission } = useCameraPermission();
 
+  // Shared Values para la orientación
+  const tiltX = useSharedValue(0); // Inclinación adelante/atrás
+  const tiltY = useSharedValue(0); // Inclinación lateral
+
   useEffect(() => {
     if (!hasPermission) {
       requestPermission();
     }
+
+    // Configurar frecuencia del sensor
+    setUpdateIntervalForType(SensorTypes.accelerometer, 20);
+
+    // Suscribirse directamente sin usar pipe/map de rxjs para evitar errores de Metro
+    const subscription = accelerometer.subscribe(
+        ({ x, y, z }) => {
+          // Calculamos los ángulos manualmente aquí para evitar dependencias extra
+          const angleX = Math.atan2(z, y) * (180 / Math.PI);
+          const angleY = Math.atan2(x, y) * (180 / Math.PI);
+          
+          tiltX.value = angleX;
+          tiltY.value = angleY;
+        },
+        error => console.log("Error en sensor:", error)
+      );
+
+    return () => subscription.unsubscribe();
   }, [hasPermission]);
+
+  const estiloAnimadoPanel = useAnimatedStyle(() => {
+    // Calculamos opacidad basada en ambos ejes
+    // Si se aleja mucho del centro (0,0), el panel desaparece
+    const opacityX = interpolate(
+      Math.abs(tiltX.value),
+      [0, 45, 90],
+      [1, 0.5, 0],
+      'clamp'
+    );
+
+    const opacityY = interpolate(
+      Math.abs(tiltY.value),
+      [0, 45, 90],
+      [1, 0.5, 0],
+      'clamp'
+    );
+
+    // Multiplicamos ambas opacidades para un desvanecimiento suave en diagonal también
+    const opacity = opacityX * opacityY;
+
+    // Desplazamiento vertical para que el panel se mueva "con" el mundo
+    const translateY = interpolate(
+      tiltX.value,
+      [-90, 0, 90],
+      [-300, 0, 300],
+      'clamp'
+    );
+
+    // Desplazamiento horizontal leve al rotar de lado
+    const translateX = interpolate(
+      tiltY.value,
+      [-45, 0, 45],
+      [100, 0, -100],
+      'clamp'
+    );
+
+    return {
+      opacity,
+      transform: [
+        { translateY: translateY },
+        { translateX: translateX },
+        { scale: interpolate(opacity, [0, 1], [0.8, 1]) }
+      ],
+    };
+  });
 
   if (!hasPermission) {
     return (
@@ -45,10 +119,10 @@ const LiteAR: React.FC<LiteARProps> = ({ sensor, onClose }) => {
         isActive={true}
       />
       
-      {/* Overlay - Dashboard "AR" Lite */}
-      <View style={styles.overlay}>
-        <View style={styles.panel}>
-            <Text style={styles.panelTitulo}>MODO LITE (SIN ARCORE)</Text>
+      {/* Overlay - Dashboard "AR" Lite con Sensores */}
+      <View style={styles.overlay} pointerEvents="box-none">
+        <Animated.View style={[styles.panel, estiloAnimadoPanel]}>
+            <Text style={styles.panelTitulo}>MODO INMERSIVO (SENSORES)</Text>
             <Text style={styles.idSensor}>Sensor #{sensor?.id || '...'}</Text>
             
             <View style={styles.fila}>
@@ -64,7 +138,7 @@ const LiteAR: React.FC<LiteARProps> = ({ sensor, onClose }) => {
             <View style={styles.tagUbicacion}>
                 <Text style={styles.ubicacionTexto}>{sensor?.ubicacion}</Text>
             </View>
-        </View>
+        </Animated.View>
       </View>
 
       <TouchableOpacity style={styles.botonCerrar} onPress={onClose}>

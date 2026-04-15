@@ -92,3 +92,16 @@ Guía generada para el proyecto Aplicacion_AR.
 
 
 $env:Path += ";C:\Users\Ander\AppData\Local\Android\Sdk\platform-tools"
+# 1. Desinstalar la app del teléfono (por si hay conflicto de firmas)
+& "C:\Users\Ander\AppData\Local\Android\Sdk\platform-tools\adb.exe" uninstall com.sensorarapp
+
+# 2. Entrar a la carpeta de android y limpiar el cache de Gradle
+cd android
+.\gradlew clean
+cd ..
+
+# 3. Limpiar cache de Metro y volver a lanzar
+npm start -- --reset-cache
+
+ & "C:\Users\Ander\AppData\Local\Android\Sdk\platform-tools\adb.exe" reverse tcp:8081 tcp:8081
+ 
