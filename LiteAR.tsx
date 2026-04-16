@@ -10,10 +10,12 @@ import { accelerometer, SensorTypes, setUpdateIntervalForType } from 'react-nati
 
 interface LiteARProps {
   sensor: any;
+  onRefresh: () => void;
+  cargando: boolean;
   onClose: () => void;
 }
 
-const LiteAR: React.FC<LiteARProps> = ({ sensor, onClose }) => {
+const LiteAR: React.FC<LiteARProps> = ({ sensor, onRefresh, cargando, onClose }) => {
   const device = useCameraDevice('back');
   const { hasPermission, requestPermission } = useCameraPermission();
 
@@ -141,9 +143,22 @@ const LiteAR: React.FC<LiteARProps> = ({ sensor, onClose }) => {
         </Animated.View>
       </View>
 
-      <TouchableOpacity style={styles.botonCerrar} onPress={onClose}>
-        <Text style={styles.botonTexto}>VOLVER AL DASHBOARD</Text>
-      </TouchableOpacity>
+      <View style={styles.controlesInferiores}>
+        <TouchableOpacity 
+          style={styles.botonActualizar} 
+          onPress={onRefresh}
+        >
+          {cargando ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <Text style={styles.botonTextoSecundario}>ACTUALIZAR DATOS</Text>
+          )}
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.botonCerrar} onPress={onClose}>
+          <Text style={styles.botonTexto}>VOLVER AL DASHBOARD</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
@@ -214,17 +229,37 @@ const styles = StyleSheet.create({
     paddingHorizontal: 25
   },
   ubicacionTexto: { color: '#90CAF9', fontSize: 14, fontWeight: '600' },
-  botonCerrar: {
+  controlesInferiores: {
     position: 'absolute',
-    bottom: 50,
-    alignSelf: 'center',
+    bottom: 40,
+    width: '100%',
+    alignItems: 'center',
+    gap: 15
+  },
+  botonActualizar: {
+    width: '80%',
+    paddingVertical: 12,
+    borderRadius: 15,
+    alignItems: 'center',
+    borderWidth: 1.5,
+    borderColor: '#2196F3',
+    backgroundColor: 'rgba(26, 26, 46, 0.9)'
+  },
+  botonTextoSecundario: {
+    color: '#2196F3', 
+    fontSize: 14,
+    fontWeight: '900',
+    letterSpacing: 1
+  },
+  botonCerrar: {
+    width: '80%',
     backgroundColor: 'rgba(211, 47, 47, 0.9)',
-    paddingHorizontal: 30,
     paddingVertical: 15,
     borderRadius: 30,
+    alignItems: 'center',
     elevation: 10
   },
-  botonTexto: { color: '#fff', fontSize: 15, fontWeight: '900' }
+  botonTexto: { color: '#fff', fontSize: 13, fontWeight: '900', letterSpacing: 1 }
 });
 
 export default LiteAR;

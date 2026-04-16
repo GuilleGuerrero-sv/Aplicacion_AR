@@ -101,6 +101,8 @@ export default function App() {
     return (
       <LiteAR 
         sensor={sensor} 
+        onRefresh={obtenerDatos}
+        cargando={cargando}
         onClose={() => setMostrarLiteAR(false)} 
       />
     );
